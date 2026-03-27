@@ -144,6 +144,66 @@
 			].join(''));
 		}
 		
+		// Progress / bookmark tracking
+		let progress = {};
+		let savedProgress = Cookies.get('wt-progress');
+		if(typeof savedProgress != 'undefined') {
+			progress = JSON.parse(savedProgress);
+		}
+
+		// Add progress markers to all ordered list items in all sections
+		$('#wt-body > div').each(function() {
+			let idx = 0;
+			$(this).find('ol > li').each(function() {
+				$(this).attr('data-progress-idx', idx++);
+				$(this).prepend('<span class="progress-marker" title="Mark as current point"></span>');
+			});
+		});
+
+		// Apply saved progress state visually
+		function applyProgress() {
+			Object.keys(progress).forEach(function(sectionId) {
+				let idx = progress[sectionId];
+				let li = $('#' + sectionId + ' ol > li[data-progress-idx="' + idx + '"]');
+				if(li.length) {
+					li.addClass('progress-current');
+					li.children('.progress-marker').addClass('active');
+					$('#menu .wt-link[data-target="' + sectionId + '"]').addClass('has-progress');
+				}
+			});
+		}
+		applyProgress();
+
+		// Click handler for progress markers
+		$('#wt-body').on('click', '.progress-marker', function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			let li = $(this).closest('li');
+			let sectionId = li.closest('#wt-body > div').attr('id');
+			let idx = parseInt(li.attr('data-progress-idx'));
+
+			// Clear previous marker in this section
+			let prev = $('#' + sectionId + ' .progress-current');
+			prev.removeClass('progress-current');
+			prev.children('.progress-marker').removeClass('active');
+
+			if(progress[sectionId] === idx) {
+				// Clicking same item — remove the mark
+				delete progress[sectionId];
+				$('#menu .wt-link[data-target="' + sectionId + '"]').removeClass('has-progress');
+			} else {
+				// Set new mark
+				progress[sectionId] = idx;
+				li.addClass('progress-current');
+				$(this).addClass('active');
+				$('#menu .wt-link[data-target="' + sectionId + '"]').addClass('has-progress');
+			}
+
+			Cookies.set('wt-progress', JSON.stringify(progress), {expires: 365});
+			return false;
+		});
+
 		// Jump between sections
 		let currentSection = null;
 		$('#main').on('click', '.wt-link', function(event) {
@@ -166,8 +226,16 @@
 			}
 			
 			$('#wt-body > div:visible').hide();
-			$('#' + $(this).data('target')).show();
-			$('#wt-body').scrollTop(0);
+			let shownSection = $('#' + target);
+			shownSection.show();
+			let wtBody = $('#wt-body');
+			wtBody.scrollTop(0);
+			if(typeof progress[target] !== 'undefined') {
+				let markedLi = shownSection.find('ol > li[data-progress-idx="' + progress[target] + '"]');
+				if(markedLi.length) {
+					wtBody.scrollTop(markedLi.offset().top - wtBody.offset().top);
+				}
+			}
 			
 			return false;
 		});
