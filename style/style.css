@@ -260,6 +260,44 @@ html, body {
 	font-size: 1.2rem;
 }
 
+.progress-marker {
+	display: inline-block;
+	width: 1.2em;
+	text-align: center;
+	cursor: pointer;
+	color: rgba(100, 200, 255, 0.15);
+	transition: color 0.15s;
+	font-size: 0.85em;
+	vertical-align: middle;
+	user-select: none;
+
+	&::before {
+		content: '◉';
+	}
+
+	&:hover {
+		color: rgba(255, 200, 50, 0.6);
+	}
+
+	&.active {
+		color: rgb(255, 200, 50);
+	}
+}
+
+.progress-current {
+	background-color: rgba(255, 200, 50, 0.06);
+	border-radius: 3px;
+	outline: 1px solid rgba(255, 200, 50, 0.2);
+}
+
+#menu .wt-link.has-progress::after {
+	content: '◉';
+	font-size: 0.75em;
+	color: rgb(255, 200, 50);
+	margin-left: 4px;
+	vertical-align: middle;
+}
+
 h1, h2, h3, p, ul, ol {
 	&:first-child {
 		margin-top: 0;
