@@ -36,6 +36,7 @@
                     <li><div class="wt-link" data-target="wt-frisha">Frisha</div></li>
                     <li><div class="wt-link" data-target="wt-arianna">Arianna</div></li>
                     <li><div class="wt-link" data-target="wt-verena">Verena</div></li>
+                    <li><div class="wt-link" data-target="wt-rose">Rose</div></li>
                     <li><div class="wt-link" data-target="wt-emily">Emily</div></li>
                     <li><div class="wt-link" data-target="wt-corven">Corven</div></li>
                     <li><div class="wt-link" data-target="wt-john">John</div></li>
@@ -131,21 +132,23 @@
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
         <script>
         var gitHash = '';
-        var appendFiles = function() {
-            $('head').append($('<link>').attr({
-                'href': '/ASWSWalkthrough/style/style.css?_=' + gitHash,
-                'rel': 'stylesheet'
-            }));
-            $('body').append($('<script>').attr({
-                'src': '/ASWSWalkthrough/scripts/script.js?_=' + gitHash
-            }));
-        }
         
-        if(window.location.host == 'localhost:8089') {
-            gitHash = Date.now().toString();
-            appendFiles();
-        } else {
-            (function($) {
+        (function($) {
+            let appendFiles = function() {
+                    $('head').append($('<link>').attr({
+                        'href': '/ASWSWalkthrough/style/style.css?_=' + gitHash,
+                        'rel': 'stylesheet'
+                    }));
+                    
+                    $('body').append($('<script>').attr({
+                        'src': '/ASWSWalkthrough/scripts/script.js?_=' + gitHash
+                    }));
+                }
+
+            if(window.location.host == 'localhost:8089') {
+                gitHash = Date.now().toString();
+                appendFiles();
+            } else {
                 $.ajax({
                     'type': 'GET',
                     'url': 'https://api.github.com/repos/AloofTooth/ASWSWalkthrough/git/refs/heads',
@@ -158,8 +161,8 @@
                     },
                     'complete': appendFiles
                 });
-            })(jQuery);
-        }
+            }
+        })(jQuery);
         </script>
     </body>
 </html>
