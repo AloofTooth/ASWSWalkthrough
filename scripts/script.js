@@ -1,65 +1,77 @@
-(function($) {
-    $(function() {
-        // Load all pages
-        let wtBody = $('#wt-body'),
-            requested = 0,
-            loadSuccess = 0,
-            loadFailed = 0;
-            
-        function postAjaxEvent() {
-            if((loadSuccess + loadFailed) < requested) {
-                return;
-            }
-            
-            if(loadFailed > 0) {
-                alert('Failed to load critical source. Refer to console for details.');
-                return;
-            }
-            
-            init();
-        }
-            
-        $('#menu').find('.wt-link').each(function() {
-            requested++;
-            let sectionId = $(this).data('target');
-            
-            $.ajax({
-                'type': 'GET',
-                'url': '/ASWSWalkthrough/pages/' + sectionId + '.html',
-                'data': {
-                    '_': gitHash
-                },
-                'dataType': 'html',
-                'success': function(response) {
-                    let newDiv = $('<div>');
-                    
-                    newDiv.attr({
-                        'id': sectionId,
-                        'style': sectionId != 'wt-info' ? 'display: none;' : ''
-                    }).html(response).appendTo(wtBody);
-                    
-                    loadSuccess++;
-                    postAjaxEvent();
-                },
-                'error': function() {
-                    console.log('Error loading ' + sectionId, arguments);
-                    loadFailed++;
-                    postAjaxEvent();
-                }
-            });
-        });
-    });
+'use strict';
+
+(($) => {
+    let requested = 0,
+        loadSuccess = 0,
+        loadFailed = 0,
+        newSections = {},
+        versions,
+        latestVersion = null,
+        hidden,
+        hiddenKeys,
+        currentSection,
+        highlightStyle,
+        menuList = [];
     
-    function init() {
-        // Get sections with new content
-        let newSections = {};
+    const loadFilesForPage = (sectionId) => {
+        $.ajax({
+            'type': 'GET',
+            'url': `/ASWSWalkthrough/pages/${sectionId}.html`,
+            'data': {
+                '_': gitHash
+            },
+            'dataType': 'html',
+            'success': (response) => {
+                let newDiv = $('<div>');
+                
+                newDiv.attr({
+                    'id': sectionId,
+                    'style': sectionId != 'wt-info' ? 'display: none;' : ''
+                }).html(response).appendTo($('#walkthrough-body'));
+                
+                loadSuccess++;
+                postAjaxEvent();
+            },
+            'error': (...args) => {
+                console.log(`Error loading ${sectionId}`, args);
+                loadFailed++;
+                postAjaxEvent();
+            },
+        });
+    };
+    
+    const postAjaxEvent = () => {
+        if((loadSuccess + loadFailed) < requested) {
+            return;
+        }
+        
+        if(loadFailed > 0) {
+            alert('Failed to load critical source. Refer to console for details.');
+            return;
+        }
+        
+        init();
+    }
+    
+    const init = () => {
+        deriveSectionVersions();
+        deriveVersions();
+        processHidden();
+        buildHighlightMenu();
+        storeDefaultMenuSort();
+        attachInterfaceEvents();
+        setInitialState();
+    };
+    
+    const deriveSectionVersions = () => {
         $('#menu').find('.wt-link').each(function() {
             let menuLink = $(this),
                 sectionId = $(this).data('target'),
                 newInSection = $('[class*="new-"]', $('#' + sectionId));
             
             newInSection.each(function() {
-                versionNo = this.className.match(/(?<=new-)\d+\-\d+\-\d+\-\d+/);
+                let versionNo = this.className.match(/(?<=new-)\d+\-\d+\-\d+\-\d+/);
+                
                 if(versionNo === null || typeof versionNo[0] == 'undefined') {
                     console.log('Invalid new class', this);
                     return true;
@@ -71,18 +83,17 @@
                 
                 if(newSections[versionNo].indexOf(sectionId) == -1) {
                     newSections[versionNo].push(sectionId);
-                    
-                    menuLink.addClass('new-' + versionNo);
+                    menuLink.addClass(`new-${versionNo}`);
                 }
             });
         });
+    };
+    
+    const deriveVersions = () => {
+        versions = Object.keys(newSections);
         
-        // Derive latest version
-        let versions = Object.keys(newSections),
-            latestVersion = null;
-            
         if(versions.length > 0) {
-            versions.sort(function(aItem, bItem) {
+            versions.sort((aItem, bItem) => {
                 let a = aItem.match(/(\d+)\-(\d+)\-(\d+)\-(\d+)/),
                     b = bItem.match(/(\d+)\-(\d+)\-(\d+)\-(\d+)/);
                     
@@ -100,24 +111,25 @@
             latestVersion = versions[0];
             $('#latest-version').text(latestVersion.replace(/\-/g, '.'));
         }
+    };
+    
+    const processHidden = () => {
+        hidden = Cookies.get('wt-hidden');
         
-        // Process hidden sections cookie (if set)
-        let hidden = Cookies.get('wt-hidden');
         if(typeof hidden == 'undefined') {
             hidden = {};
         } else {
             hidden = JSON.parse(hidden);
         }
         
-        let hiddenKeys = Object.keys(hidden),
-            i = 0;
+        hiddenKeys = Object.keys(hidden);
+        let i = 0;
         
         hiddenLoop:
         while(i < hiddenKeys.length) {
             let section = hiddenKeys[i],
-                hiddenVersion = hidden[hiddenKeys[i]];
-                
-            hiddenVersionIdx = versions.indexOf(hiddenVersion);
+                hiddenVersion = hidden[hiddenKeys[i]],
+                hiddenVersionIdx = versions.indexOf(hiddenVersion);
             
             if(hiddenVersionIdx > 0) {
                 for(let x = hiddenVersionIdx - 1; x >= 0; x--) {
@@ -133,178 +145,185 @@
         }
         
         for(i = 0; i < hiddenKeys.length; i++) {
-            let menuItem = $('#menu [data-target="' + hiddenKeys[i] + '"]');
+            let menuItem = $(`#menu [data-target="${hiddenKeys[i]}"]`);
             menuItem.parent().hide();
             $('#hidden-section-list').append([
                 '<tr>',
-                    '<td><span class="wt-link" data-target="' + hiddenKeys[i] + '">' + menuItem.text() + '</span></td>',
-                    '<td>' + hidden[hiddenKeys[i]].replace(/\-/g, '.') + '</td>',
-                    '<td><span class="toggle-hidden" data-unhide="' + hiddenKeys[i] + '">Unhide</span></td>',
+                    `<td><span class="wt-link" data-target="${hiddenKeys[i]}">${menuItem.text()}</span></td>`,
+                    `<td>${hidden[hiddenKeys[i]].replace(/\-/g, '.')}</td>`,
+                    `<td><span class="toggle-hidden" data-unhide="${hiddenKeys[i]}">Unhide</span></td>`,
                 '</tr>'
             ].join(''));
         }
-        
-        // Jump between sections
-        let currentSection = null;
-        $('#main').on('click', '.wt-link', function(event) {
-            event.preventDefault();
-            
-            let target = $(this).data('target');
-            $('#menu .active').toggleClass('active', false);
-            currentSection = target;
-            
-            if(target == 'hidden-sections') {
-                $('#title').text('Manage Hidden Sections');
-            } else {
-                let menuLink = $('#menu .wt-link[data-target="' + target + '"]');
-                menuLink.toggleClass('active', true);
-                $('#title').text(menuLink.text());
-            }
-                
-            if(['wt-info', 'hidden-sections'].indexOf(target) == -1) {
-                $('#title').append('<span class="toggle-hidden">' + (hiddenKeys.indexOf(target) == -1 ? 'Hide' : 'Unhide') + '</span>');
-            }
-            
-            $('#wt-body > div:visible').hide();
-            $('#' + $(this).data('target')).show();
-            $('#wt-body').scrollTop(0);
-            
-            return false;
-        });
-        $('#menu').find('.wt-link:first').trigger('click');
-        
-        // Hide section functionality
-        $('#title').on('click', '.toggle-hidden', function(event) {
-            event.preventDefault();
-            
-            hiddenIdx = hiddenKeys.indexOf(currentSection);
-            if(hiddenIdx == -1) {
-                hiddenKeys.push(currentSection);
-                hidden[currentSection] = latestVersion;
-                $(this).text('Unhide');
-                
-                let menuItem = $('#menu [data-target="' + currentSection + '"]');
-                menuItem.parent().hide();
-                $('#hidden-section-list').append([
-                    '<tr>',
-                        '<td><span class="wt-link" data-target="' + hiddenKeys[i] + '">' + menuItem.text() + '</span></td>',
-                        '<td>' + latestVersion.replace(/\-/g, '.') + '</td>',
-                        '<td><span class="toggle-hidden" data-unhide="' + hiddenKeys[i] + '">Unhide</span></td>',
-                    '</tr>'
-                ].join(''));
-            } else {
-                hiddenKeys.splice(hiddenIdx, 1);
-                delete hidden[currentSection];
-                $(this).text('Hide');
-                $('#menu [data-target="' + currentSection + '"]').parent().show();
-                $('#hidden-section-list').find('[data-unhide="' + currentSection + '"]').closest('tr').remove();
-            }
-            
-            Cookies.set('wt-hidden', JSON.stringify(hidden), {expires: 365});
-            
-            return false;
-        });
-        
-        // Unhide via Manage Hidden Sections
-        $('#hidden-section-list').on('click', '.toggle-hidden', function(event) {
-            event.preventDefault();
-        
-            let section = $(this).data('unhide'),
-                hiddenIdx = hiddenKeys.indexOf(section);
-            
-            if(hiddenIdx != -1) {
-                hiddenKeys.splice(hiddenIdx, 1);
-                delete hidden[section];
-                Cookies.set('wt-hidden', JSON.stringify(hidden), {expires: 365});
-            }
-            
-            $('#menu [data-target="' + section + '"]').parent().show();
-            $(this).closest('tr').remove();
-        
-            return false;
-        });
-        
-        // Highlight section functionality
-        let highlightStyle = $('<style>');
+    };
+    
+    const buildHighlightMenu = () => {
+        highlightStyle = $('<style>');
         highlightStyle.appendTo('head');
         
-        $('#highlight-menu').on('click', '.highlight-link', function(event) {
+        for(let i = 0; i < versions.length; i++) {
+            $('#highlight-menu ul:first').append(`<li><span class="highlight-link" data-highlight="${versions[i]}">New in ${versions[i].replace(/\-/g, '.')}</span></li>`);
+        }
+    };
+    
+    const highlightVerson = (version) => {
+        $('#highlight-menu .highlight-link.active').toggleClass('active', false);
+        $(`#highlight-menu .highlight-link[data-highlight="${version}"]`).toggleClass('active', true);
+        
+        if(version == 'none') {
+            highlightStyle.text('');
+        } else {
+            highlightStyle.text(`.new-${version} { color: rgb(100, 255, 150); }`);
+        }
+    };
+    
+    const storeDefaultMenuSort = () => {
+        let menuIndex = 0;
+        
+        $('#menu > ul > li').each(function() {
+            $(this).data('index', menuIndex++);
+            menuList.push($(this));
+        });
+    };
+    
+    const jumpToSection = (sectionId) => {
+        $('#menu .active').toggleClass('active', false);
+        currentSection = sectionId;
+        
+        if(sectionId == 'hidden-sections') {
+            $('#title').text('Manage Hidden Sections');
+        } else {
+            let menuLink = $(`#menu .wt-link[data-target="${sectionId}"]`);
+            menuLink.toggleClass('active', true);
+            $('#title').text(menuLink.text());
+        }
+            
+        if(['wt-info', 'hidden-sections'].indexOf(sectionId) == -1) {
+            let linkText = hiddenKeys.indexOf(sectionId) == -1 ? 'Hide' : 'Unhide';
+            $('#title').append(`<span class="toggle-hidden">${linkText}</span>`);
+        }
+        
+        $('#walkthrough-body > div:visible').hide();
+        $(`#${sectionId}`).show();
+        $('#walkthrough-body').scrollTop(0);
+    };
+    
+    const toggleHideSection = (sectionId, forceUnhide = false) => {
+        let hiddenIdx = hiddenKeys.indexOf(sectionId);
+        
+        if(hiddenIdx == -1 && forceUnhide !== true) {
+            hiddenKeys.push(sectionId);
+            hidden[sectionId] = latestVersion;
+            
+            let menuItem = $(`#menu [data-target="${sectionId}"]`);
+            menuItem.parent().hide();
+            
+            $('#hidden-section-list').append([
+                '<tr>',
+                    `<td><span class="wt-link" data-target="${sectionId}">${menuItem.text()}</span></td>`,
+                    `<td>${latestVersion.replace(/\-/g, '.')}</td>`,
+                    `<td><span class="toggle-hidden" data-unhide="${sectionId}">Unhide</span></td>`,
+                '</tr>'
+            ].join(''));
+        } else if(hiddenIdx != -1) {
+            hiddenKeys.splice(hiddenIdx, 1);
+            delete hidden[sectionId];
+            $(`#menu [data-target="${sectionId}"]`).parent().show();
+            $('#hidden-section-list').find(`[data-unhide="${sectionId}"]`).closest('tr').remove();
+        }
+        
+        if(sectionId == currentSection) {
+            $('#title > .toggle-hidden').text((hiddenIdx == -1) ? 'Unhide' : 'Hide');
+        }
+        
+        Cookies.set('wt-hidden', JSON.stringify(hidden), {expires: 365});
+    };
+    
+    const sortMenuByDefault = () => {
+        let menuElement = $('#menu > ul');
+        
+        menuList.sort((a, b) => {
+            return a.data('index') - b.data('index');
+        });
+        
+        for(let i = 0; i < menuList.length; i++) {
+            menuList[i].appendTo(menuElement);
+        }
+    };
+    
+    const sortMenuByName = () => {
+        let menuElement = $('#menu > ul');
+        
+        menuList.sort((a, b) => {
+            let aDiv = a.children('div'),
+                bDiv = b.children('div'),
+                aTarget = aDiv.data('target'),
+                bTarget = bDiv.data('target');
+            
+            if(aTarget == 'wt-info') {
+                return -1;
+            } else if(aTarget == 'wt-tips' && bTarget != 'wt-info') {
+                return -1
+            } else if(aTarget == 'wt-house' && !['wt-info', 'wt-tips'].includes(bTarget)) {
+                return -1
+            } else if(aTarget == 'wt-intro' && !['wt-info', 'wt-tips', 'wt-house'].includes(bTarget)) {
+                return -1
+            }
+            
+            return aDiv.text() < bDiv.text() ? -1 : 1;
+        });
+    };
+    
+    const attachInterfaceEvents = () => {
+        $('#main').on('click', '.wt-link:not(.active)', function(event) {
             event.preventDefault();
-            
-            if($(this).hasClass('active')) {
-                return false;
-            }
-            
-            $('#highlight-menu .active').toggleClass('active', false);
-            $(this).toggleClass('active', true);
-            
-            if($(this).data('highlight') == 'none') {
-                highlightStyle.text('');
-            } else {
-                highlightStyle.text('.new-' + $(this).data('highlight') + ' { color: rgb(100, 255, 150); }');
-            }
-            
+            jumpToSection($(this).data('target'));
             return false;
         });
         
-        // Build highlight section
-        for(let i = 0; i < versions.length; i++) {
-            $('#highlight-menu ul:first').append('<li><span class="highlight-link" data-highlight="' + versions[i] + '">New in ' + versions[i].replace(/\-/g, '.') + '</span></li>');
-        }
+        $('#title').on('click', '.toggle-hidden', function(event) {
+            event.preventDefault();
+            toggleHideSection(currentSection);
+            return false;
+        });
         
-        if(versions.length == 0) {
-            $('#highlight-menu .highlight-link:first').trigger('click');
-        } else {
-            $('#highlight-menu .highlight-link[data-highlight="' + versions[0] + '"]').trigger('click');
-        }
+        $('#hidden-section-list').on('click', '.toggle-hidden', function(event) {
+            event.preventDefault();
+            toggleHideSection($(this).data('unhide'), true);
+            $(this).closest('tr').remove();
+            return false;
+        });
         
-        // Toggle menu sort order
-        let menuIndex = 0,
-            menuList = [],
-            menuElement = $('#menu > ul');
-            
-        $('> li', menuElement).each(function() {
-            $(this).data('index', menuIndex++);
-            menuList.push($(this));
+        $('#highlight-menu').on('click', '.highlight-link:not(.active)', function(event) {
+            event.preventDefault();
+            highlightVerson($(this).data('highlight'));
+            return false;
         });
         
         $('#toggle-sort').on('click', function(event) {
             event.preventDefault();
             
             if($(this).hasClass('active')) {
-                menuList.sort(function(a, b) {
-                    return a.data('index') - b.data('index');
-                });
-                
-                $(this).toggleClass('active', false);
+                sortMenuByDefault();
             } else {
-                menuList.sort(function(a, b) {
-                    let aDiv = a.children('div'),
-                        bDiv = b.children('div'),
-                        aTarget = aDiv.data('target'),
-                        bTarget = bDiv.data('target');
-                    
-                    if(aTarget == 'wt-info') {
-                        return -1;
-                    } else if(aTarget == 'wt-tips' && bTarget != 'wt-info') {
-                        return -1
-                    } else if(aTarget == 'wt-house' && !['wt-info', 'wt-tips'].includes(bTarget)) {
-                        return -1
-                    } else if(aTarget == 'wt-intro' && !['wt-info', 'wt-tips', 'wt-house'].includes(bTarget)) {
-                        return -1
-                    }
-                    
-                    return aDiv.text() < bDiv.text() ? -1 : 1;
-                });
-                
-                $(this).toggleClass('active', true);
+                sortMenuByName();
             }
-                
-            for(let i = 0; i < menuList.length; i++) {
-                menuList[i].appendTo(menuElement);
-            }
+            
+            $(this).toggleClass('active');
             
             return false;
         });
-    }
+    };
+    
+    const setInitialState = () => {
+        jumpToSection($('#menu .wt-link:first').data('target'));
+        highlightVerson((versions.length > 0) ? versions[0] : 'none');
+    };
+    
+    $(() => {
+        $('#menu').find('.wt-link').each(function() {
+            requested++;
+            loadFilesForPage($(this).data('target'));
+        });
+    });
 })(jQuery);

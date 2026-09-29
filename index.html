@@ -95,7 +95,7 @@
                         </a>
                     </div>
                 </div>
-                <div id="wt-body">
+                <div id="walkthrough-body">
                     <noscript>This page requires JavaScript to function.</noscript>
                     <div id="hidden-sections" style="display: none">
                         <p class="cyan">Click the &#34;hide&#34; link in the title bar on any hideable section to remove it from the menu on the left.</p>
@@ -127,24 +127,30 @@
                     </div>
                 </div>
             </div>
+            <div id="foot">
+                <span>Walkthrough content by <a alt="Link to Chyos' SubscribeStar" target="_blank" href="https://subscribestar.adult/chyos">Chyos</a></span>
+                <span>Walthrough interface by <a alt="Link to Aloof Tooth's profile on F95zone.com" target="_blank" href="https://f95zone.to/members/aloof_tooth.4676849/">Aloof Tooth</a></span>
+            </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
         <script>
+        'use strict';
+        
         var gitHash = '';
         
-        (function($) {
-            let appendFiles = function() {
-                    $('head').append($('<link>').attr({
-                        'href': '/ASWSWalkthrough/style/style.css?_=' + gitHash,
-                        'rel': 'stylesheet'
-                    }));
-                    
-                    $('body').append($('<script>').attr({
-                        'src': '/ASWSWalkthrough/scripts/script.js?_=' + gitHash
-                    }));
-                }
-
+        (($) => {
+            const appendFiles = () => {
+                $('head').append($('<link>').attr({
+                    'href': '/ASWSWalkthrough/style/style.css?_=' + gitHash,
+                    'rel': 'stylesheet'
+                }));
+                
+                $('body').append($('<script>').attr({
+                    'src': '/ASWSWalkthrough/scripts/script.js?_=' + gitHash
+                }));
+            };
+            
             if(window.location.host == 'localhost:8089') {
                 gitHash = Date.now().toString();
                 appendFiles();
@@ -153,11 +159,11 @@
                     'type': 'GET',
                     'url': 'https://api.github.com/repos/AloofTooth/ASWSWalkthrough/git/refs/heads',
                     'dataType': 'json',
-                    'success': function(response) {
+                    'success': (response) => {
                         gitHash = response[0].object.sha;
                     },
-                    'error': function() {
-                        gitHash = $.now();
+                    'error': () => {
+                        gitHash = $.now().toString();
                     },
                     'complete': appendFiles
                 });
