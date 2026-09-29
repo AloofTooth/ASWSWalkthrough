@@ -63,7 +63,6 @@
             processHiddenSectionData();
             attachInterfaceEvents();
             setInitialState();
-            $('.no-js, .loading').remove();
         });
     };
     
@@ -339,6 +338,9 @@
     const setInitialState = () => {
         jumpToSection('wt-info');
         highlightVerson((versions.length > 0) ? versions[0] : 'none');
+        
+        $('.no-js, .loading').remove();
+        $('body').toggleClass('loaded', true);
     };
     
     $(() => {
