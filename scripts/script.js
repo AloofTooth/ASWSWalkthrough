@@ -1,7 +1,8 @@
 'use strict';
 
 (($) => {
-    let requested = 0,
+    let sectionKeys = [],
+        requested = 0,
         loadSuccess = 0,
         loadFailed = 0,
         newSections = {},
@@ -84,7 +85,7 @@
                     newSections[versionNo] = [];
                 }
                 
-                if(newSections[versionNo].indexOf(sectionId) == -1) {
+                if(newSections[versionNo].includes(sectionId)) {
                     newSections[versionNo].push(sectionId);
                     menuLink.addClass(`new-${versionNo}`);
                 }
@@ -207,6 +208,8 @@
     };
     
     const jumpToSection = (sectionId) => {
+        history.replaceState(null, '', (sectionId == 'wt-info') ? location.href.split('#')[0] : `#${sectionId}`);
+        
         $('#menu .active').toggleClass('active', false);
         currentSection = sectionId;
         
@@ -218,8 +221,8 @@
             $('#title').text(menuLink.text());
         }
             
-        if(['wt-info', 'hidden-sections'].indexOf(sectionId) == -1) {
-            let linkText = hiddenKeys.indexOf(sectionId) == -1 ? 'Hide' : 'Unhide';
+        if(!['wt-info', 'hidden-sections'].includes(sectionId)) {
+            let linkText = hiddenKeys.includes(sectionId) ? 'Unhide' : 'Hide';
             $('#title').append(`<span class="toggle-hidden">${linkText}</span>`);
         }
         
@@ -336,7 +339,10 @@
     };
     
     const setInitialState = () => {
-        jumpToSection('wt-info');
+        let sectionId = location.hash.replace(/^#/, '');
+        sectionId = (sectionKeys.includes(sectionId)) ? sectionId : 'wt-info';
+        
+        jumpToSection(sectionId);
         highlightVerson((versions.length > 0) ? versions[0] : 'none');
         
         $('.no-js, .loading').remove();
@@ -346,7 +352,9 @@
     $(() => {
         $('#menu').find('.wt-link').each(function() {
             requested++;
-            loadFilesForPage($(this).data('target'));
+            let sectionId = $(this).data('target');
+            sectionKeys.push(sectionId);
+            loadFilesForPage(sectionId);
         });
     });
 })(jQuery);
