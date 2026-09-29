@@ -7,7 +7,7 @@
         newSections = {},
         versions,
         latestVersion = null,
-        hidden,
+        hiddenSectionData,
         hiddenKeys,
         currentSection,
         highlightStyle,
@@ -26,7 +26,7 @@
                 
                 newDiv.attr({
                     'id': sectionId,
-                    'style': sectionId != 'wt-info' ? 'display: none;' : ''
+                    'style': 'display: none;',
                 }).html(response).appendTo($('#walkthrough-body'));
                 
                 loadSuccess++;
@@ -56,11 +56,15 @@
     const init = () => {
         deriveSectionVersions();
         deriveVersions();
-        processHidden();
         buildHighlightMenu();
         storeDefaultMenuSort();
-        attachInterfaceEvents();
-        setInitialState();
+        
+        fetchHiddenSectionData(() => {
+            processHiddenSectionData();
+            attachInterfaceEvents();
+            setInitialState();
+            $('.no-js, .loading').remove();
+        });
     };
     
     const deriveSectionVersions = () => {
@@ -113,28 +117,45 @@
         }
     };
     
-    const processHidden = () => {
-        hidden = Cookies.get('wt-hidden');
+    const fetchHiddenSectionData = (callback) => {
+        hiddenSectionData = localStorage.getItem('hidden-sections');
         
-        if(typeof hidden == 'undefined') {
-            hidden = {};
+        if(hiddenSectionData !== null) {
+            hiddenSectionData = JSON.parse(hiddenSectionData);
+            callback();
         } else {
-            hidden = JSON.parse(hidden);
+            $.getScript(
+                'https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js',
+                function () {
+                    hiddenSectionData = Cookies.get('wt-hidden');
+                    
+                    if(typeof hiddenSectionData == 'undefined') {
+                        hiddenSectionData = {};
+                    } else {
+                        hiddenSectionData = JSON.parse(hiddenSectionData);
+                    }
+                    
+                    localStorage.setItem('hidden-sections', JSON.stringify(hiddenSectionData));
+                    callback();
+                }
+            );
         }
-        
-        hiddenKeys = Object.keys(hidden);
+    };
+    
+    const processHiddenSectionData = () => {
+        hiddenKeys = Object.keys(hiddenSectionData);
         let i = 0;
         
         hiddenLoop:
         while(i < hiddenKeys.length) {
             let section = hiddenKeys[i],
-                hiddenVersion = hidden[hiddenKeys[i]],
+                hiddenVersion = hiddenSectionData[hiddenKeys[i]],
                 hiddenVersionIdx = versions.indexOf(hiddenVersion);
             
             if(hiddenVersionIdx > 0) {
                 for(let x = hiddenVersionIdx - 1; x >= 0; x--) {
                     if(newSections[versions[x]].indexOf(section) != -1) {
-                        delete hidden[section];
+                        delete hiddenSectionData[section];
                         hiddenKeys.splice(i, 1);
                         continue hiddenLoop;
                     }
@@ -150,7 +171,7 @@
             $('#hidden-section-list').append([
                 '<tr>',
                     `<td><span class="wt-link" data-target="${hiddenKeys[i]}">${menuItem.text()}</span></td>`,
-                    `<td>${hidden[hiddenKeys[i]].replace(/\-/g, '.')}</td>`,
+                    `<td>${hiddenSectionData[hiddenKeys[i]].replace(/\-/g, '.')}</td>`,
                     `<td><span class="toggle-hidden" data-unhide="${hiddenKeys[i]}">Unhide</span></td>`,
                 '</tr>'
             ].join(''));
@@ -213,7 +234,7 @@
         
         if(hiddenIdx == -1 && forceUnhide !== true) {
             hiddenKeys.push(sectionId);
-            hidden[sectionId] = latestVersion;
+            hiddenSectionData[sectionId] = latestVersion;
             
             let menuItem = $(`#menu [data-target="${sectionId}"]`);
             menuItem.parent().hide();
@@ -227,7 +248,7 @@
             ].join(''));
         } else if(hiddenIdx != -1) {
             hiddenKeys.splice(hiddenIdx, 1);
-            delete hidden[sectionId];
+            delete hiddenSectionData[sectionId];
             $(`#menu [data-target="${sectionId}"]`).parent().show();
             $('#hidden-section-list').find(`[data-unhide="${sectionId}"]`).closest('tr').remove();
         }
@@ -236,7 +257,7 @@
             $('#title > .toggle-hidden').text((hiddenIdx == -1) ? 'Unhide' : 'Hide');
         }
         
-        Cookies.set('wt-hidden', JSON.stringify(hidden), {expires: 365});
+        localStorage.setItem('hidden-sections', JSON.stringify(hiddenSectionData));
     };
     
     const sortMenuByDefault = () => {
@@ -316,7 +337,7 @@
     };
     
     const setInitialState = () => {
-        jumpToSection($('#menu .wt-link:first').data('target'));
+        jumpToSection('wt-info');
         highlightVerson((versions.length > 0) ? versions[0] : 'none');
     };
     

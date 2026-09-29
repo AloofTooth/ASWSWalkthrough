@@ -6,8 +6,38 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Sans&display=swap" rel="stylesheet">
+        <style type="text/css">
+        body {
+            background-color: #222222;
+        }
+        
+        body > .no-js,
+        body > .loading {
+            padding: 10px;
+            font-size: 16px;
+            font-family: 'Hedvig Letters Sans', sans-serif;
+            color: #ffffff;
+        }
+        
+        #main,
+        body > .loading {
+            display: none;
+        }
+        
+        body.js {
+            > .no-js {
+                display: none;
+            }
+            
+            > .loading {
+                display: block;
+            }
+        }
+        </style>
     </head>
     <body>
+        <div class="no-js">This page requires JavaScript to function.</div>
+        <div class="loading">Loading...</div>
         <div id="main">
             <div id="menu">
                 <svg id="toggle-sort" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -96,7 +126,7 @@
                     </div>
                 </div>
                 <div id="walkthrough-body">
-                    <noscript>This page requires JavaScript to function.</noscript>
+                    <div id="loading">Loading...</div>
                     <div id="hidden-sections" style="display: none">
                         <p class="cyan">Click the &#34;hide&#34; link in the title bar on any hideable section to remove it from the menu on the left.</p>
                         <p class="cyan">Relevant items should automatically show again when new versions of the walkthrough become available.</p>
@@ -137,17 +167,19 @@
         <script>
         'use strict';
         
+        document.getElementsByTagName('body')[0].className = 'js';
+        
         var gitHash = '';
         
         (($) => {
             const appendFiles = () => {
                 $('head').append($('<link>').attr({
                     'href': '/ASWSWalkthrough/style/style.css?_=' + gitHash,
-                    'rel': 'stylesheet'
+                    'rel': 'stylesheet',
                 }));
                 
                 $('body').append($('<script>').attr({
-                    'src': '/ASWSWalkthrough/scripts/script.js?_=' + gitHash
+                    'src': '/ASWSWalkthrough/scripts/script.js?_=' + gitHash,
                 }));
             };
             
@@ -165,7 +197,7 @@
                     'error': () => {
                         gitHash = $.now().toString();
                     },
-                    'complete': appendFiles
+                    'complete': appendFiles,
                 });
             }
         })(jQuery);
