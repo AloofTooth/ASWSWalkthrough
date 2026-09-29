@@ -126,7 +126,7 @@
         } else {
             $.getScript(
                 'https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js',
-                function () {
+                () => {
                     hiddenSectionData = Cookies.get('wt-hidden');
                     
                     if(typeof hiddenSectionData == 'undefined') {
@@ -137,7 +137,7 @@
                     
                     localStorage.setItem('hidden-sections', JSON.stringify(hiddenSectionData));
                     callback();
-                }
+                },
             );
         }
     };
