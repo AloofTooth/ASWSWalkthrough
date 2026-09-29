@@ -30,6 +30,10 @@
                     'style': 'display: none;',
                 }).html(response).appendTo($('#walkthrough-body'));
                 
+                newDiv.find('img').each(function() {
+                    $(this).attr('src', $(this).attr('src') + `?_=${gitHash}`);
+                });
+                
                 loadSuccess++;
                 postAjaxEvent();
             },
