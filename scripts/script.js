@@ -200,6 +200,8 @@
         } else {
             highlightStyle.text(`.new-${version} { color: rgb(100, 255, 150); }`);
         }
+        
+        localStorage.setItem('highlight-version', version);
     };
     
     const storeDefaultMenuSort = () => {
@@ -275,6 +277,9 @@
         for(let i = 0; i < menuList.length; i++) {
             menuList[i].appendTo(menuElement);
         }
+        
+        $('#toggle-sort').toggleClass('active', false);
+        localStorage.removeItem('menu-sort');
     };
     
     const sortMenuByName = () => {
@@ -301,6 +306,9 @@
         for(let i = 0; i < menuList.length; i++) {
             menuList[i].appendTo(menuElement);
         }
+        
+        $('#toggle-sort').toggleClass('active', true);
+        localStorage.setItem('menu-sort', 'name');
     };
     
     const attachInterfaceEvents = () => {
@@ -338,8 +346,6 @@
                 sortMenuByName();
             }
             
-            $(this).toggleClass('active');
-            
             return false;
         });
     };
@@ -347,9 +353,19 @@
     const setInitialState = () => {
         let sectionId = location.hash.replace(/^#/, '');
         sectionId = (sectionKeys.includes(sectionId)) ? sectionId : 'wt-info';
-        
         jumpToSection(sectionId);
-        highlightVerson((versions.length > 0) ? versions[0] : 'none');
+        
+        let latestSeenVersion = localStorage.getItem('latest-seen-version');
+        if(latestSeenVersion === null || latestSeenVersion != latestVersion) {
+            localStorage.removeItem('highlight-version');
+            localStorage.setItem('latest-seen-version', latestVersion);
+        }
+        
+        highlightVerson(localStorage.getItem('highlight-version') ?? latestVersion ?? 'none');
+        
+        if(localStorage.getItem('menu-sort') == 'name') {
+            sortMenuByName();
+        }
         
         $('.no-js, .loading').remove();
         $('body').toggleClass('loaded', true);
