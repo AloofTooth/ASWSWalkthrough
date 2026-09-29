@@ -263,20 +263,17 @@
     };
     
     const sortMenuByDefault = () => {
-        let menuElement = $('#menu > ul');
-        
         menuList.sort((a, b) => {
             return a.data('index') - b.data('index');
         });
         
+        let menuElement = $('#menu > ul');
         for(let i = 0; i < menuList.length; i++) {
             menuList[i].appendTo(menuElement);
         }
     };
     
     const sortMenuByName = () => {
-        let menuElement = $('#menu > ul');
-        
         menuList.sort((a, b) => {
             let aDiv = a.children('div'),
                 bDiv = b.children('div'),
@@ -295,6 +292,11 @@
             
             return aDiv.text() < bDiv.text() ? -1 : 1;
         });
+        
+        let menuElement = $('#menu > ul');
+        for(let i = 0; i < menuList.length; i++) {
+            menuList[i].appendTo(menuElement);
+        }
     };
     
     const attachInterfaceEvents = () => {
