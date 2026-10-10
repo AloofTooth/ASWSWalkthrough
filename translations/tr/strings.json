@@ -1,0 +1,33 @@
+{
+  "language-name": "Türkçe",
+  "page-title": "A Struggle With Sin Rehberi",
+  "loading": "Yükleniyor...",
+  "critical-fail": "Önemli bir kaynak yüklenemedi. Ayrıntılar için konsola bak.",
+  "hide-info-1": "Gizlenebilen herhangi bir bölümü soldaki menüden kaldırmak için başlık çubuğundaki &#34;Gizle&#34; bağlantısına tıkla.",
+  "hide-info-2": "İlgili bölümler, rehberin yeni sürümleri çıktığında otomatik olarak yeniden görünür.",
+  "hide-info-3": "Gizlediğin bölümler, elle yeniden gösterebilmen için aşağıda listelenir.",
+  "hide-head-section": "Bölüm",
+  "hide-head-when": "Gizlendiği sürüm",
+  "hide-link": "Gizli Bölümleri Yönet",
+  "highlight-head": "Vurgula",
+  "highlight-none": "Hiçbiri",
+  "foot-content": "Rehber içeriği:",
+  "foot-interface": "Rehber arayüzü:",
+  "foot-interface-alt": "Aloof Tooth&#39;un F95zone profiline bağlantı",
+  "foot-translation": "Türkçe çeviri:",
+  "foot-translation-alt": "blometr&#39;in F95zone profiline bağlantı",
+  "foot-translation-url": "https://f95zone.to/members/blometr.6186729/",
+  "foot-translation-link": "blometr",
+  "menu": {
+    "wt-info": "Bilgi",
+    "wt-tips": "İpuçları ve Püf Noktaları",
+    "wt-house": "Ev Tadilatı",
+    "wt-intro": "Giriş",
+    "wt-mc": "Ana Karakter",
+    "wt-church": "Kilise",
+    "wt-monastery": "Manastır",
+    "wt-rumah": "Rumah Köyü",
+    "wt-darkholt": "Darkholt&#39;un Yeniden İnşası",
+    "wt-mansion": "Belediye Başkanının Konağı"
+  }
+}
