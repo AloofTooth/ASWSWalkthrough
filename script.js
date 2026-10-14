@@ -201,7 +201,7 @@
             
             $('#menu > ul').append($('<li>').append(menuLinks[pageKey]));
             
-            requestsMade++;
+            requestsMade += languageList.length;
         }
         
         for(let languageKey of languageList) {
@@ -276,11 +276,11 @@
                     continue;
                 }
                 
-                $('[class*="new-"]', page.div).each(function() {
+                page.div.find('[class*="new-"]').each(function() {
                     let version = this.className.match(/(?<=new-)\d+\-\d+\-\d+\-\d+/);
                     
                     if(version === null || typeof version[0] == 'undefined') {
-                        console.log('Invalid new class', this);
+                        console.log('Invalid new class', this, page);
                         return true;
                     }
                     
