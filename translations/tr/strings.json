@@ -1,9 +1,10 @@
 {
   "language-name": "Türkçe",
+  "bcp-47": "tr-TR",
   "page-title": "A Struggle With Sin Rehberi",
   "loading": "Yükleniyor...",
   "critical-fail": "Önemli bir kaynak yüklenemedi. Ayrıntılar için konsola bak.",
-  "hide-info-1": "Gizlenebilen herhangi bir bölümü soldaki menüden kaldırmak için başlık çubuğundaki &#34;Gizle&#34; bağlantısına tıkla.",
+  "hide-info-1": "Gizlenebilen herhangi bir bölümü soldaki menüden kaldırmak için başlık çubuğundaki \"Gizle\" bağlantısına tıkla.",
   "hide-info-2": "İlgili bölümler, rehberin yeni sürümleri çıktığında otomatik olarak yeniden görünür.",
   "hide-info-3": "Gizlediğin bölümler, elle yeniden gösterebilmen için aşağıda listelenir.",
   "hide-head-section": "Bölüm",
@@ -13,11 +14,13 @@
   "highlight-none": "Hiçbiri",
   "foot-content": "Rehber içeriği:",
   "foot-interface": "Rehber arayüzü:",
-  "foot-interface-alt": "Aloof Tooth&#39;un F95zone profiline bağlantı",
+  "foot-interface-alt": "Aloof Tooth'un F95zone profiline bağlantı",
   "foot-translation": "Türkçe çeviri:",
-  "foot-translation-alt": "blometr&#39;in F95zone profiline bağlantı",
+  "foot-translation-alt": "blometr'in F95zone profiline bağlantı",
   "foot-translation-url": "https://f95zone.to/members/blometr.6186729/",
   "foot-translation-link": "blometr",
+  "subscribestar-alt": "Chyos'un SubscribeStar sayfası",
+  "patreon-alt": "Chyos'un Patreon sayfası",
   "menu": {
     "wt-info": "Bilgi",
     "wt-tips": "İpuçları ve Püf Noktaları",
@@ -27,7 +30,7 @@
     "wt-church": "Kilise",
     "wt-monastery": "Manastır",
     "wt-rumah": "Rumah Köyü",
-    "wt-darkholt": "Darkholt&#39;un Yeniden İnşası",
+    "wt-darkholt": "Darkholt'un Yeniden İnşası",
     "wt-mansion": "Belediye Başkanının Konağı"
   }
 }
