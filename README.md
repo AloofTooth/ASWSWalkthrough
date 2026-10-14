@@ -15,4 +15,4 @@ If you wish to add your own translation then you may do so by following these st
 7. Raise a pull request.
 8. Either ping me on the A Struggle With Sin Discord, or DM me on f95zone. I will not see your PR if you do not do this.
 
-If you submit a language you will be responsible for maintaining it when new versions release. I will not do so for you. You will need to follow the above steps 1, 4, 5, 7, and 8 any time you wish to update your translation.
+If you submit a translation you will be responsible for maintaining it when new versions release. I will not do so for you. You will need to follow the above steps 1, 4, 5, 7, and 8 any time you wish to update your translation.
