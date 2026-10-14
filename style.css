@@ -463,3 +463,27 @@ table {
         border-top: 1px dotted var(--c-border);
     }
 }
+
+.split-path {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 0 20px;
+    
+    h3 {
+        > span {
+            display: block;
+            
+            + span {
+                font-size: 1.5rem;
+            }
+        }
+    }
+    
+    + p,
+    + ol,
+    + ul,
+    + h3 {
+        margin-top: 0;
+    }
+}
