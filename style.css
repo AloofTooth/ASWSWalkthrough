@@ -61,7 +61,7 @@ body:not(.loaded) {
     border-bottom: 1px solid rgba(var(--c-theme), var(--a-border));
     
     > div {
-        display: flex;
+        display: none;
         border-right: 1px solid rgba(var(--c-theme), var(--a-border));
         justify-content: center;
         align-items: center;
@@ -71,6 +71,10 @@ body:not(.loaded) {
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
+        
+        .loaded & {
+            display: flex;
+        }
         
         &:hover {
             background-color: rgba(var(--c-theme), 0.1);
