@@ -106,7 +106,7 @@
         if(version == 'none') {
             highlightStyle.text('');
         } else {
-            highlightStyle.text(`.new-${version} { color: var(--c-highlight); }`);
+            highlightStyle.text(`.new-${version} { color: rgb(var(--c-green)); }`);
         }
         
         localStorage.setItem('highlight-version', version);

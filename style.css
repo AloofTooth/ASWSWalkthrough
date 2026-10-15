@@ -248,7 +248,7 @@ body:not(.loaded) {
             cursor: pointer;
             
             .latest-version {
-                color: var(--c-green);
+                color: rgb(var(--c-green));
             }
             
             &:hover {
@@ -354,7 +354,7 @@ body:not(.loaded) {
         }
         
         &.active {
-            color: var(--c-green);
+            color: rgb(var(--c-green));
         }
     }
 
