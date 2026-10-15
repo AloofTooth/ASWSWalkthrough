@@ -11,9 +11,18 @@
     --s-content: calc(100vh - (var(--s-header) + var(--s-footer)));
     --s-highlight-inset: 42px;
     
-    --c-border: rgba(100, 200, 255, 0.3);
-    --c-link: rgba(100, 200, 255, 0.7);
-    --c-link-hover: rgba(100, 200, 255, 0.9);
+    --c-red: 255, 100, 100;
+    --c-orange: 255, 165, 75;
+    --c-yellow: 255, 255, 150;
+    --c-green: 100, 255, 150;
+    --c-cyan: 100, 255, 255;
+    --c-blue: 100, 150, 255;
+    --c-purple: 255, 100, 255;
+    --c-theme: 100, 200, 255;
+    
+    --a-border: 0.3;
+    --a-link: 0.7;
+    --a-link-hover: 0.9;
     
     --t-transition: 0.15s;
 }
@@ -33,7 +42,7 @@ body.js #main {
     display: grid;
     width: 100%;
     height: 100%;
-    grid-template-rows: calc(100% - var(--s-footer)) var(--s-footer);
+    grid-template-rows: var(--s-header) calc(100% - (var(--s-header) + var(--s-footer))) var(--s-footer);
     grid-template-columns: 251px auto;
     background-color: #222222;
     color: #ffffff;
@@ -46,9 +55,44 @@ body:not(.loaded) {
     }
 }
 
+#options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid rgba(var(--c-theme), var(--a-border));
+    
+    > div {
+        display: flex;
+        border-right: 1px solid rgba(var(--c-theme), var(--a-border));
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        background-color: rgba(var(--c-theme), 0);
+        transition: background-color var(--t-transition);
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        
+        &:hover {
+            background-color: rgba(var(--c-theme), 0.1);
+        }
+        
+        > span {
+            font-size: 1.4rem;
+        
+            &.name {
+                font-weight: 700;
+            }
+            
+            &.value {
+                color: rgb(var(--c-blue));
+            }
+        }
+    }
+}
+
 #menu {
     position: relative;
-    border-right: 1px solid var(--c-border);
+    border-right: 1px solid rgba(var(--c-theme), var(--a-border));
     padding: 10px;
     overflow: auto;
     font-size: 1.4rem;
@@ -72,9 +116,9 @@ body:not(.loaded) {
         
         > span {
             display: block;
-            border-left: 5px solid var(--c-border);
+            border-left: 5px solid rgba(var(--c-theme), var(--a-border));
             padding: 0 0 0 7px;
-            background-color: rgba(100, 200, 255, 0);
+            background-color: rgba(var(--c-theme), 0);
             transition: border var(--t-transition), background-color var(--t-transition), color var(--t-transition);
         }
         
@@ -82,41 +126,20 @@ body:not(.loaded) {
             cursor: pointer;
             
             &:hover > span {
-                border-left-color: var(--c-link);
-                background-color: rgba(100, 200, 255, 0.1);
-                color: var(--c-link);
+                border-left-color: rgba(var(--c-theme), var(--a-link));
+                background-color: rgba(var(--c-theme), 0.1);
+                color: rgba(var(--c-theme), var(--a-link));
             }
         }
         
         &.active > span {
-            color: rgb(100, 255, 255);
+            color: rgb(var(--c-cyan));
         }
-    }
-}
-    
-#toggle-sort {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    z-index: 2;
-    
-    path {
-        fill: none;
-        stroke: var(--c-border);
-        stroke-width: 5;
-        transition: stroke var(--t-transition);
-    }
-    
-    &:hover path,
-    &.active path {
-        stroke: var(--c-link);
     }
 }
 
 #content {
+    grid-row: span 2;
     display: grid;
     grid-template-rows: var(--s-header) auto;
     grid-template-columns: auto 201px;
@@ -151,7 +174,7 @@ body:not(.loaded) {
     display: flex;
     gap: 10px;
     align-items: center;
-    border-bottom: 1px solid var(--c-border);
+    border-bottom: 1px solid rgba(var(--c-theme), var(--a-border));
     padding: 0 10px;
     
     > a,
@@ -177,7 +200,7 @@ body:not(.loaded) {
 
 #language-swatch {
     position: relative;
-    border: 1px solid var(--c-border);
+    border: 1px solid rgba(var(--c-theme), var(--a-border));
     
     .current,
     .choice {
@@ -190,7 +213,7 @@ body:not(.loaded) {
         transition: background-color var(--t-transition);
         
         > img {
-            border: 1px solid var(--c-border);
+            border: 1px solid rgba(var(--c-theme), var(--a-border));
             width: 40px;
             height: 20px;
         }
@@ -200,7 +223,7 @@ body:not(.loaded) {
         &::after {
             content: '';
             display: block;
-            border-top: 14px solid var(--c-border);
+            border-top: 14px solid rgba(var(--c-theme), var(--a-border));
             border-right: 10px solid rgba(0, 0, 0, 0);
             border-left: 10px solid rgba(0, 0, 0, 0);
         }
@@ -211,17 +234,17 @@ body:not(.loaded) {
         position: absolute;
         top: 100%;
         left: -5px;
-        border-bottom: 1px solid var(--c-border);
+        border-bottom: 1px solid rgba(var(--c-theme), var(--a-border));
         background-color: rgba(0, 0, 0, 0.85);
         
         .choice {
-            border: 1px solid var(--c-border);
+            border: 1px solid rgba(var(--c-theme), var(--a-border));
             border-bottom: none;
             padding: 10px;
             cursor: pointer;
             
             .latest-version {
-                color: rgb(100, 255, 150);
+                color: var(--c-green);
             }
             
             &:hover {
@@ -273,7 +296,7 @@ body:not(.loaded) {
 #highlight-menu {
     display: grid;
     grid-template-rows: var(--s-highlight-inset) 1fr var(--s-highlight-inset);
-    border-left: 1px solid var(--c-border);
+    border-left: 1px solid rgba(var(--c-theme), var(--a-border));
     font-size: 1.4rem;
     text-align: center;
     
@@ -285,7 +308,7 @@ body:not(.loaded) {
     }
     
     div.title {
-        border-bottom: 1px solid var(--c-border);
+        border-bottom: 1px solid rgba(var(--c-theme), var(--a-border));
         font-size: 1.6rem;
         font-weight: strong;
     }
@@ -308,7 +331,7 @@ body:not(.loaded) {
                     min-width: calc(100% - 60px);
                     
                     & + li {
-                        border-top: 1px solid rgba(100, 200, 255, 0.1);
+                        border-top: 1px solid rgba(var(--c-theme), 0.1);
                     }
                 }
             }
@@ -322,17 +345,17 @@ body:not(.loaded) {
             cursor: pointer;
             
             &:hover {
-                color: var(--c-link);
+                color: rgba(var(--c-theme), var(--a-link));
             }
         }
         
         &.active {
-            color: rgb(100, 255, 150);
+            color: var(--c-green);
         }
     }
 
     .hidden-link {
-        border-top: 1px solid var(--c-border);
+        border-top: 1px solid rgba(var(--c-theme), var(--a-border));
     }
 }
 
@@ -342,7 +365,7 @@ body:not(.loaded) {
     justify-content: space-between;
     align-items: center;
     gap: 15px;
-    border-top: 1px solid var(--c-border);
+    border-top: 1px solid rgba(var(--c-theme), var(--a-border));
     padding: 0 10px;
     
     > span {
@@ -361,13 +384,13 @@ body:not(.loaded) {
     #toggle-hidden,
     .toggle-hidden,
     a {
-        color: var(--c-link);
+        color: rgba(var(--c-theme), var(--a-link));
         text-decoration: none;
         transition: color var(--t-transition);
         cursor: pointer;
         
         &:hover {
-            color: var(--c-link-hover);
+            color: rgba(var(--c-theme), var(--a-link-hover));
         }
     }
 }
@@ -397,43 +420,43 @@ li > * {
 
 .red {
     &, > * {
-        color: rgb(255, 100, 100);
+        color: rgb(var(--c-red));
     }
 }
 
 .orange {
     &, > * {
-        color: rgb(255, 165, 75);
+        color: rgb(var(--c-orange));
     }
 }
 
 .yellow {
     &, > * {
-        color: rgb(255, 255, 150);
+        color: rgb(var(--c-yellow));
     }
 }
 
 .green {
     &, > * {
-        color: rgb(100, 255, 150);
+        color: rgb(var(--c-green));
     }
 }
 
 .cyan {
     &, > * {
-        color: rgb(100, 255, 255);
+        color: rgb(var(--c-cyan));
     }
 }
 
 .blue {
     &, > * {
-        color: rgb(100, 150, 255);
+        color: rgb(var(--c-blue));
     }
 }
 
 .purple {
     &, > * {
-        color: rgb(255, 100, 255);
+        color: rgb(var(--c-purple));
     }
 }
 
@@ -455,20 +478,27 @@ table {
         padding: 5px 10px;
         
         &:not(:first-child) {
-            border-left: 1px dotted var(--c-border);
+            border-left: 1px dotted rgba(var(--c-theme), var(--a-border));
         }
     }
     
     td {
-        border-top: 1px dotted var(--c-border);
+        border-top: 1px dotted rgba(var(--c-theme), var(--a-border));
     }
 }
 
 .split-path {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 40px;
     padding: 0 20px;
+    
+    .no-ntr &.no-ntr-no-pad {
+        padding: 0;
+    }
+    
+    > div {
+        flex: 1;
+    }
     
     h3 {
         > span {
@@ -486,4 +516,12 @@ table {
     + h3 {
         margin-top: 0;
     }
+}
+
+body.no-ntr .ntr {
+    display: none;
+}
+
+body:not(.no-ntr) .ntr-off {
+    display: none;
 }

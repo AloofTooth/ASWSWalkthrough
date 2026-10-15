@@ -57,6 +57,12 @@
         currentPage = key;
     };
     
+    const setOptionDisplay = (optionKey, translationKey) => {
+        $('#options').find(`[data-option="${optionKey}"]`).find('.value').attr({
+            'data-translation': translationKey,
+        }).text(getTString(translationKey));
+    };
+    
     const applyMenuSort = (menuSort) => {
         let pageListSorted;
         
@@ -100,7 +106,7 @@
         if(version == 'none') {
             highlightStyle.text('');
         } else {
-            highlightStyle.text(`.new-${version} { color: rgb(100, 255, 150); }`);
+            highlightStyle.text(`.new-${version} { color: var(--c-highlight); }`);
         }
         
         localStorage.setItem('highlight-version', version);
@@ -418,20 +424,44 @@
             toggleHidePage();
         });
         
-        $('#toggle-sort').on('click', function(event) {
-            event.preventDefault();
+        $('#options').on('click', '[data-option]', function(event) {
+            let optionKey = $(this).data('option'),
+                translationKey;
             
-            let menuSort = localStorage.getItem('menu-sort');
-            menuSort = menuSort === null ? 'name' : null;
-            
-            if(menuSort === null) {
-                localStorage.removeItem('menu-sort');
-            } else {
-                localStorage.setItem('menu-sort', menuSort);
+            switch(optionKey) {
+                case 'ntr':
+                    let body = $('body:first');
+                    
+                    body.toggleClass('no-ntr');
+                    
+                    if(body.hasClass('no-ntr')) {
+                        localStorage.setItem('no-ntr', true);
+                        translationKey = 'option-ntr-off';
+                    } else {
+                        localStorage.removeItem('no-ntr');
+                        translationKey = 'option-ntr-on';
+                    }
+                    
+                    break;
+                
+                case 'sort':
+                    let menuSort = localStorage.getItem('menu-sort');
+                    menuSort = menuSort === null ? 'name' : null;
+                    
+                    if(menuSort === null) {
+                        localStorage.removeItem('menu-sort');
+                        translationKey = 'option-sort-default';
+                    } else {
+                        localStorage.setItem('menu-sort', menuSort);
+                        translationKey = 'option-sort-alpha';
+                    }
+                    
+                    applyMenuSort(menuSort);
+                    
+                    break;
             }
             
-            applyMenuSort(menuSort);
-            $(this).toggleClass('active');
+            setOptionDisplay(optionKey, translationKey);
         });
         
         $('#title-holder').on('click', '.set-language', function(event) {
@@ -483,7 +513,12 @@
         
         if(menuSort !== null) {
             applyMenuSort(menuSort);
-            $('#toggle-sort').toggleClass('active', true);
+            setOptionDisplay('sort', 'option-sort-alpha');
+        }
+        
+        if(localStorage.getItem('no-ntr') !== null) {
+            $('body:first').toggleClass('no-ntr', true);
+            setOptionDisplay('ntr', 'option-ntr-off');
         }
         
         $('body').toggleClass('loaded', true);

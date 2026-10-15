@@ -25,6 +25,12 @@
   "foot-translation-link": null,
   "subscribestar-alt": "Link to Chyos' SubscribeStar",
   "patreon-alt": "Link to Chyos' Patreon",
+  "option-ntr": "NTR",
+  "option-ntr-on": "On",
+  "option-ntr-off": "Off",
+  "option-sort": "Sort",
+  "option-sort-default": "Default",
+  "option-sort-alpha": "A-Z",
   "menu": {
     "wt-info": "Information",
     "wt-tips": "Tips & tricks",
